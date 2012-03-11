@@ -31,7 +31,10 @@ void loop(void) {
     return;
   }
 */
-  addr=addr1;
+
+  for ( i = 0; i < 8; i++ )
+    addr[i]=addr1[i];
+    
   Serial.print("ROM =");
   for( i = 0; i < 8; i++) {
     Serial.write(' ');
