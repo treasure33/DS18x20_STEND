@@ -33,7 +33,7 @@ void loop(void) {
 */
 
   for ( i = 0; i < 8; i++ )
-    addr[i]=addr1[i];
+    addr[i]=addr2[i];
     
   Serial.print("ROM =");
   for( i = 0; i < 8; i++) {
@@ -66,11 +66,12 @@ void loop(void) {
       return;
   } 
 
-  ds.reset();
-  ds.select(addr);
+  ds.reset();  
+  //ds.select(addr);
+  ds.skip();                // skip rom, send next command for all devices
   ds.write(0x44,1);         // start conversion, with parasite power on at the end
   
-  delay(1000);     // maybe 750ms is enough, maybe not
+  delay(750);     // maybe 750ms is enough, maybe not
   // we might do a ds.depower() here, but the reset will take care of it.
   
   present = ds.reset();
@@ -105,11 +106,27 @@ void loop(void) {
     else if (cfg == 0x40) raw = raw << 1; // 11 bit res, 375 ms
     // default is 12 bit resolution, 750 ms conversion time
   }
-  celsius = (float)raw / 16.0;
+  Serial.print(" raw=");
+  Serial.print(raw);
+  int sign = 1;
+  if (data[1]&128)
+  {
+    raw = ~raw+1;
+    sign=-1;
+  }
+  
+  Serial.print(" raw=");
+  Serial.print(raw);    
+  Serial.println();
+
+    
+  celsius = (sign==-1?(float)raw / 16.0 * (float) sign: (float)raw / 16.0);
   fahrenheit = celsius * 1.8 + 32.0;
+  
   Serial.print("  Temperature = ");
   Serial.print(celsius);
   Serial.print(" Celsius, ");
   Serial.print(fahrenheit);
   Serial.println(" Fahrenheit");
+  delay(1000);
 }
